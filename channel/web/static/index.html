@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>MyAgent Web Console</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="会话列表">
+      <div class="sidebar-header">
+        <div>
+          <p class="eyebrow">MYAGENT</p>
+          <h1>对话</h1>
+        </div>
+        <button id="sidebar-toggle" class="icon-button" type="button" aria-label="关闭会话栏">×</button>
+      </div>
+      <button id="new-session" class="primary-button" type="button">+ 新对话</button>
+      <nav id="session-list" class="session-list" aria-label="历史会话"></nav>
+    </aside>
+
+    <main class="chat-panel">
+      <header class="chat-header">
+        <button id="sidebar-toggle-mobile" class="icon-button mobile-only" type="button" aria-label="打开会话栏">☰</button>
+        <div class="session-heading">
+          <p class="eyebrow">本机 Web Console</p>
+          <h2 id="session-title">新对话</h2>
+        </div>
+        <div class="header-actions">
+          <label class="mode-label" for="execution-mode">
+            运行模式
+            <select id="execution-mode" aria-label="Agent 运行模式">
+              <option value="auto">自动</option>
+              <option value="lightweight">轻量</option>
+              <option value="full">完整</option>
+            </select>
+          </label>
+          <label class="thinking-label" for="thinking-toggle">
+            <input id="thinking-toggle" type="checkbox">
+            显示思考
+          </label>
+          <button id="rename-session" class="text-button" type="button">重命名</button>
+          <button id="delete-session" class="text-button danger" type="button">删除</button>
+          <span id="logout" class="local-only">仅限本机</span>
+        </div>
+      </header>
+
+      <div id="status-banner" class="status-banner" role="status" hidden></div>
+      <section id="messages" class="messages" aria-live="polite" aria-label="聊天消息"></section>
+
+      <form id="composer" class="composer">
+        <textarea id="message-input" rows="3" maxlength="100000" placeholder="输入消息；Enter 发送，Shift+Enter 换行" aria-label="消息内容"></textarea>
+        <div class="composer-actions">
+          <span class="composer-hint">MyAgent 在本机运行</span>
+          <button id="stop-run" class="secondary-button" type="button" hidden>停止生成</button>
+          <button id="send-message" class="primary-button" type="submit">发送</button>
+        </div>
+      </form>
+    </main>
+  </div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

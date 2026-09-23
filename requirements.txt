@@ -1,0 +1,5 @@
+requests==2.34.2
+chromadb==1.5.9
+fastapi==0.141.1
+uvicorn==0.52.0
+httpx==0.28.1

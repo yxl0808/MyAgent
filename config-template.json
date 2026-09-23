@@ -1,0 +1,56 @@
+{
+    "_comment": "复制此文件为 config.json 并填入你的配置。config.json 不会被 git 追踪。",
+
+    "language": "auto",
+
+    "openai_api_key": "",
+    "openai_api_base": "https://api.openai.com/v1",
+    "openai_model": "gpt-4o",
+
+    "claude_api_key": "",
+    "claude_api_base": "https://api.anthropic.com/v1",
+    "claude_model": "claude-sonnet-4-6",
+
+    "deepseek_api_key": "",
+    "deepseek_api_base": "https://api.deepseek.com/v1",
+    "deepseek_model": "deepseek-chat",
+    "deepseek_thinking_enabled": true,
+    "deepseek_reasoning_effort": "high",
+
+    "model": "openai",
+
+    "proxy": "",
+
+    "agent_enabled": true,
+    "agent_workspace": "~/myagent",
+    "agent_max_steps": 20,
+    "agent_max_context_tokens": 50000,
+    "agent_max_context_turns": 20,
+    "agent_temperature": 0.7,
+    "agent_top_p": 0.9,
+    "agent_lightweight_mode_enabled": true,
+    "agent_lightweight_query_max_chars": 180,
+
+    "skills_enabled": true,
+    "skills_builtin_dir": "",
+
+    "memory_enabled": true,
+    "memory_max_entries": 500,
+    "memory_auto_refine_enabled": false,
+    "embedding_provider": "ollama",
+    "embedding_model": "bge-m3",
+    "embedding_api_base": "http://localhost:11434/api/embeddings",
+    "embedding_openai_model": "text-embedding-3-small",
+
+    "web_enabled": true,
+    "web_host": "127.0.0.1",
+    "web_port": 9899,
+    "web_password": "",
+    "web_show_thinking": false,
+
+    "wechat_enabled": false,
+    "wechat_token": "",
+
+    "debug": false,
+    "request_timeout": 120
+}
