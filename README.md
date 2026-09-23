@@ -67,6 +67,18 @@ python main.py web
 
 默认访问地址为 `http://127.0.0.1:9899`。Web Console 仅绑定 localhost 或回环地址，不提供公网监听。聊天中输入 `exit` 或 `quit` 退出。
 
+## 运行效果
+
+我为 MyAgent 实现了命令行聊天和本机 Web Console 两种交互入口。下图分别展示了 CLI 中基于 DeepSeek 的对话，以及 Web Console 的本机会话界面。
+
+### 命令行
+
+![MyAgent 命令行对话界面](docs/images/myagent-cli-chat.png)
+
+### Web Console
+
+![MyAgent Web Console 界面](docs/images/myagent-web-console.png)
+
 查看脱敏后的有效配置：
 
 ```bash
