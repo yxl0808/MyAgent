@@ -16,9 +16,7 @@ def create_memory_manager(
     llm_model: Any = None,
     workspace_dir: str = "",
 ) -> MemoryManager:
-    """
-    根据显式工作区或全局配置创建 MemoryManager。
-    """
+    """根据工作区和全局配置创建支持可选重排的记忆管理器。"""
     from config import conf
 
     provider = conf().get("embedding_provider", "ollama")

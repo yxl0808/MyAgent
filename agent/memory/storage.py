@@ -339,7 +339,7 @@ class MemoryStorage:
         return [dict(r) for r in rows]
 
     def get_chunk_text(self, path: str, start_line: int, end_line: int) -> Optional[str]:
-        """Fetch indexed full text, avoiding filesystem changes and snippet truncation."""
+        """按文件路径和行号读取索引中的完整记忆块文本。"""
         with self._lock:
             row = self.conn.execute(
                 "SELECT text FROM chunks WHERE path=? AND start_line=? AND end_line=?",

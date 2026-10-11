@@ -6,6 +6,7 @@ from typing import List
 class LocalReranker:
     def __init__(self, model_name="BAAI/bge-reranker-v2-m3", device="cpu",
                  batch_size=4, max_length=1024):
+        """初始化本地重排模型的配置、缓存和并发锁。"""
         self.model_name = model_name
         self.device = device
         self.batch_size = max(1, batch_size)
@@ -15,6 +16,7 @@ class LocalReranker:
         self._lock = threading.Lock()
 
     def __call__(self, query: str, documents: List[str]) -> List[float]:
+        """计算查询与各候选记忆的相关性分数，供调用方重排。"""
         if not documents:
             return []
         # Serialize loading and inference for shared managers in Web sessions.

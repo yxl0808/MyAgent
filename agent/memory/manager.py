@@ -31,6 +31,7 @@ class MemoryManager:
         llm_model: Any = None,
         reranker: Optional[Callable[[str, List[str]], List[float]]] = None,
     ):
+        """初始化记忆存储、分块器、向量索引及可选重排模型。"""
         self.config = config or MemoryConfig()
         self.embedding_func = embedding_func
         self.llm_model = llm_model
@@ -210,7 +211,7 @@ class MemoryManager:
     # ── 搜 索 ────────────────────────────────────────────────
 
     def search(self, query: str, limit: int = 0) -> List[SearchResult]:
-        """向量 + 关键词 → 融合 → 可选重排；失败回退融合结果。"""
+        """融合关键词与向量召回结果，按需重排并在失败时回退。"""
         if self.config.sync_on_search:
             try:
                 self.sync()
@@ -600,7 +601,7 @@ class MemoryManager:
         return ok
 
     def get_status(self) -> Dict[str, Any]:
-        """返回记忆系统当前状态，供工具和调试界面使用。"""
+        """返回记忆索引、嵌入服务和重排模型的当前状态。"""
         stats = self.storage.get_stats()
         return {
             "chunks": stats["chunks"],
