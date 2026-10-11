@@ -1,12 +1,14 @@
 # encoding:utf-8
 """
 MemoryManager — 记忆系统统一入口。
-混合搜索 = ChromaDB 向量 + SQLite FTS5 trigram。
+混合搜索 = ChromaDB 向量 + SQLite FTS5 trigram，可选本地 cross-encoder 重排。
 """
 
 import hashlib
 import json
 import logging
+import math
+from dataclasses import replace
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -27,10 +29,19 @@ class MemoryManager:
         config: Optional[MemoryConfig] = None,
         embedding_func: Optional[Callable[[List[str]], List[List[float]]]] = None,
         llm_model: Any = None,
+        reranker: Optional[Callable[[str, List[str]], List[float]]] = None,
     ):
         self.config = config or MemoryConfig()
         self.embedding_func = embedding_func
         self.llm_model = llm_model
+        self.reranker = reranker
+        self.reranker_last_error = None
+        if self.reranker is None and self.config.reranker_enabled:
+            from agent.memory.reranker import LocalReranker
+            self.reranker = LocalReranker(
+                self.config.reranker_model, self.config.reranker_device,
+                self.config.reranker_batch_size, self.config.reranker_max_length,
+            )
 
         # SQLite 存储
         self.storage = MemoryStorage(self.config.db_path)
@@ -199,7 +210,7 @@ class MemoryManager:
     # ── 搜 索 ────────────────────────────────────────────────
 
     def search(self, query: str, limit: int = 0) -> List[SearchResult]:
-        """混合搜索：向量 + 关键词 → 合并排序。"""
+        """向量 + 关键词 → 融合 → 可选重排；失败回退融合结果。"""
         if self.config.sync_on_search:
             try:
                 self.sync()
@@ -207,9 +218,10 @@ class MemoryManager:
                 logger.warning('[MemoryManager] Pre-search sync failed: %s', exc)
 
         limit = limit or self.config.max_results
+        candidate_limit = max(limit, self.config.reranker_candidates) if self.config.reranker_enabled else limit * 2
 
         # 1. 关键词搜索（始终可用）
-        kw_results = self.storage.search_keyword(query, limit * 2)
+        kw_results = self.storage.search_keyword(query, candidate_limit)
         logger.info("[MemoryManager] Keyword: %d hits", len(kw_results))
 
         # 2. 向量搜索（需 embedding_func + chroma 可用）
@@ -218,7 +230,7 @@ class MemoryManager:
             try:
                 qvec = self.embedding_func([query])[0]
                 raw = self._collection.query(
-                    query_embeddings=[qvec], n_results=limit * 2,
+                    query_embeddings=[qvec], n_results=candidate_limit,
                 )
                 for i, mid in enumerate(raw["ids"][0]):
                     meta = raw["metadatas"][0][i]
@@ -236,9 +248,26 @@ class MemoryManager:
                 logger.warning("[MemoryManager] Vector search failed: %s", e)
 
         # 3. 合并排序
-        return self._merge(vec_results, kw_results,
+        merged = self._merge(vec_results, kw_results,
                            self.config.vector_weight,
-                           self.config.keyword_weight)[:limit]
+                           self.config.keyword_weight)
+        if self.config.reranker_enabled and self.reranker and merged:
+            candidates = merged[:max(limit, self.config.reranker_candidates)]
+            try:
+                texts = [self.storage.get_chunk_text(r.path, r.start_line, r.end_line)
+                         for r in candidates]
+                if any(text is None for text in texts):
+                    raise ValueError('Candidate full text missing from index')
+                scores = self.reranker(query, texts)
+                if len(scores) != len(candidates) or not all(math.isfinite(float(s)) for s in scores):
+                    raise ValueError('Invalid reranker scores')
+                ranked = [replace(r, score=float(s)) for r, s in zip(candidates, scores)]
+                self.reranker_last_error = None
+                return sorted(ranked, key=lambda r: r.score, reverse=True)[:limit]
+            except Exception as exc:
+                self.reranker_last_error = str(exc)
+                logger.warning('[MemoryManager] Reranker failed; using fusion ranking: %s', exc)
+        return merged[:limit]
 
     def _merge(
         self,
@@ -580,6 +609,9 @@ class MemoryManager:
             "chroma_available": self._collection is not None,
             "embedding_available": self._is_embedding_available(),
             "embedding_model": self.config.embedding_model,
+            "reranker_enabled": self.config.reranker_enabled,
+            "reranker_model": self.config.reranker_model,
+            "reranker_last_error": self.reranker_last_error,
         }
 
     def _is_embedding_available(self) -> bool:

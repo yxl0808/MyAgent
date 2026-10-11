@@ -36,6 +36,12 @@ def create_memory_manager(
             "http://localhost:11434/api/embeddings",
         ),
         embedding_model=conf().get("embedding_model", "bge-m3"),
+        reranker_enabled=conf().get("memory_reranker_enabled", False),
+        reranker_model=conf().get("memory_reranker_model", "BAAI/bge-reranker-v2-m3"),
+        reranker_device=conf().get("memory_reranker_device", "cpu"),
+        reranker_candidates=conf().get("memory_reranker_candidates", 20),
+        reranker_batch_size=conf().get("memory_reranker_batch_size", 4),
+        reranker_max_length=conf().get("memory_reranker_max_length", 1024),
     )
     embedding_func = get_embedding_func(
         api_base=(

@@ -84,6 +84,12 @@ available_setting = {
 
     # ===== 记忆系统 =====
     "memory_enabled": True,            # 是否启用长期记忆
+    "memory_reranker_enabled": False,  # 启用本地 cross-encoder 重排
+    "memory_reranker_model": "BAAI/bge-reranker-v2-m3",  # 模型 ID 或本地目录
+    "memory_reranker_device": "cpu",   # cpu / cuda
+    "memory_reranker_candidates": 20,
+    "memory_reranker_batch_size": 4,
+    "memory_reranker_max_length": 1024,
     "memory_max_entries": 500,         # 最多存储多少条记忆
     "memory_auto_refine_enabled": False,  # 是否在每天 18:00 后自动执行 refine
     "embedding_provider": "ollama",    # 向量嵌入服务: "ollama" / "openai"

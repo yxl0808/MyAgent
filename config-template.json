@@ -35,6 +35,12 @@
     "skills_builtin_dir": "",
 
     "memory_enabled": true,
+    "memory_reranker_enabled": false,
+    "memory_reranker_model": "BAAI/bge-reranker-v2-m3",
+    "memory_reranker_device": "cpu",
+    "memory_reranker_candidates": 20,
+    "memory_reranker_batch_size": 4,
+    "memory_reranker_max_length": 1024,
     "memory_max_entries": 500,
     "memory_auto_refine_enabled": false,
     "embedding_provider": "ollama",

@@ -338,6 +338,15 @@ class MemoryStorage:
         ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_chunk_text(self, path: str, start_line: int, end_line: int) -> Optional[str]:
+        """Fetch indexed full text, avoiding filesystem changes and snippet truncation."""
+        with self._lock:
+            row = self.conn.execute(
+                "SELECT text FROM chunks WHERE path=? AND start_line=? AND end_line=?",
+                (path, start_line, end_line),
+            ).fetchone()
+        return row['text'] if row else None
+
     def get_stats(self) -> Dict[str, int]:
         """返回 chunks + files 统计。"""
         c = self.conn.execute("SELECT COUNT(*) as c FROM chunks").fetchone()["c"]

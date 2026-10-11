@@ -49,6 +49,13 @@ class MemoryConfig:
     auto_sync: bool = True
     sync_on_search: bool = True
 
+    reranker_enabled: bool = False
+    reranker_model: str = "BAAI/bge-reranker-v2-m3"
+    reranker_device: str = "cpu"
+    reranker_candidates: int = 20
+    reranker_batch_size: int = 4
+    reranker_max_length: int = 1024
+
     def __post_init__(self):
         """自动推导未设置的路径。"""
         if not self.workspace_dir:
